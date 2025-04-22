@@ -98,6 +98,37 @@ public class Main {
         return er;
     }
 
+    public static String decryptBlock(String encryptedBlock, String key) {
+        int len = encryptedBlock.length();
+        List<Integer> encNums = new ArrayList<>();
+        List<Integer> keyNums = new ArrayList<>();
+        List<Integer> resultNums = new ArrayList<>();
+        StringBuilder resultLetters = new StringBuilder();
+
+        for (int i = 0; i < len; i++) {
+            int encNum = ALPHABET.indexOf(encryptedBlock.charAt(i)) + 1;
+            int keyNum = ALPHABET.indexOf(key.charAt(i)) + 1;
+            encNums.add(encNum);
+            keyNums.add(keyNum);
+            int diff = encNum - keyNum - 1;
+            if(diff < 0) {
+                diff += 32;
+            }
+            int plain = diff + 1;
+            resultNums.add(plain);
+            resultLetters.append(ALPHABET.charAt(plain - 1));
+        }
+
+        String encNumsStr = encNums.toString().replace('[', '(').replace(']', ')');
+        String keyNumsStr = keyNums.toString().replace('[', '(').replace(']', ')');
+        String resultNumsStr = resultNums.toString().replace('[', '(').replace(']', ')');
+
+        System.out.println("(" + encryptedBlock + ") - (" + key + ") = " + encNumsStr
+                + " -_32 " + keyNumsStr + " = " + resultNumsStr
+                + " = " + resultLetters.toString());
+        return resultLetters.toString();
+    }
+
     public static void main(String[] args) {
         Map<Character, Integer> alphabetMap = createAlphabetMap();
         System.out.println(alphabetMap);
@@ -132,5 +163,14 @@ public class Main {
             finalEncryptedMessage.append(er.encrypted);
         }
         System.out.println("\nЗашифрованное сообщение: " + finalEncryptedMessage.toString());
+
+        System.out.println("\nДешифрование по методу Виженера:");
+        List<String> encryptedBlocks = splitIntoBlocks(finalEncryptedMessage.toString(), keyLength);
+        StringBuilder decryptedMessage = new StringBuilder();
+        for (String block : encryptedBlocks) {
+            String decryptedBlock = decryptBlock(block, keyWord);
+            decryptedMessage.append(decryptedBlock);
+        }
+        System.out.println("\nРасшифрованное сообщение: " + decryptedMessage.toString());
     }
 }
